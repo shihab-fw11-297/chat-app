@@ -6,6 +6,8 @@ const http = require('http');
 const publicPath = path.join(__dirname, '/../public');
 const port = process.env.PORT || 3000
 
+const {generateMessage, generateLocationMessage} = require('./utills/message');
+
 let app = express();
 let server = http.createServer(app);
 let io = socketIO(server);
@@ -15,14 +17,18 @@ io.on('connection', (socket) => {
     console.log("A new user just connected")
     
     socket.on('createMessage', (message, callback) => {
-        console.log(message)
+      io.emit(`newMessage`,
+      generateMessage(message.from, message.text),
+      callback('this is from server side')
+      ) 
     });
 
-    socket.emit('newMessage',{
-        from:"Admin",
-        text:"Welcome to chat app",
-        createdAt:new Date().getTime()
-    })
+    socket.on('createLocationMessage', (coords) => {
+        io.emit(`newLocationMessage`,
+        generateLocationMessage(`Admin`, coords.lat, coords.lng));
+    });
+
+    socket.emit('newMessage', generateMessage('Admin', `Welocome to chat app!`));
 
     socket.broadcast.emit('newMessage',{
         from:"Admin",
