@@ -1,8 +1,22 @@
 let socket = io();
 
+function scrollToBottom() {
+  let messages = document.querySelector('#messages').lastElementChild;
+  messages.scrollIntoView();
+}
 
-socket.on('connection', () => {
-  console.log("A new user just connected")
+socket.on('connect', function() {
+  let searchQuery = window.location.search.substring(1);
+  let params = JSON.parse('{"' + decodeURI(searchQuery).replace(/&/g, '","').replace(/\+/g, ' ').replace(/=/g,'":"') + '"}');
+
+  socket.emit('join', params, function(err) {
+    if(err){
+      alert(err);
+      window.location.href = '/';
+    }else {
+      console.log('No Error');
+    }
+  })
 });
 
 socket.on('disconnect', () => {
@@ -22,6 +36,7 @@ socket.on('newMessage', function (message) {
   div.innerHTML = html
 
   document.querySelector('#messages').appendChild(div);
+  scrollToBottom();
 });
 
 socket.on('newLocationMessage', function (message) {
@@ -39,7 +54,7 @@ socket.on('newLocationMessage', function (message) {
   div.innerHTML = html
 
   document.querySelector('#messages').appendChild(div);
-
+  scrollToBottom();
 });
 
 document.querySelector('#submit-btn').addEventListener('click', function (e) {
