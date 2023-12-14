@@ -5,7 +5,7 @@ const http = require('http');
 
 const publicPath = path.join(__dirname, '/../public');
 const port = process.env.PORT || 3000
-
+const {isRealString} = require('./utills/isRealString');
 const {generateMessage, generateLocationMessage} = require('./utills/message');
 
 let app = express();
@@ -16,6 +16,13 @@ app.use(express.static(publicPath));
 io.on('connection', (socket) => {
     console.log("A new user just connected")
     
+    socket.on('join', (params, callback) => {
+        if(!isRealString(params.name) || !isRealString(params.room)){
+          return callback('Name and room are required');
+        }
+        socket.join(params.room);
+    });
+
     socket.on('createMessage', (message, callback) => {
       io.emit(`newMessage`,
       generateMessage(message.from, message.text),
