@@ -19,6 +19,21 @@ socket.on('connect', function() {
   })
 });
 
+socket.on('updateUsersList', function (users) {
+  let ol = document.createElement('ol');
+
+  users.forEach(function (user) {
+    let li = document.createElement('li');
+    li.innerHTML = user;
+    ol.appendChild(li);
+  });
+
+  let usersList = document.querySelector('#users');
+  usersList.innerHTML = "";
+  usersList.appendChild(ol);
+})
+
+
 socket.on('disconnect', () => {
   console.log("A new user just dis-connected");
 });
